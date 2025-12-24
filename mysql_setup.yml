@@ -1,0 +1,18 @@
+---
+- hosts: wordpress
+  become: true
+  tasks:
+    - name: Create WordPress database
+      mysql_db:
+        name: wordpress
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Create WordPress user
+      mysql_user:
+        name: wp_user
+        password: "YourSecurePassword123!"
+        priv: 'wordpress.*:ALL'
+        state: present
+        host: localhost
+        login_unix_socket: /var/run/mysqld/mysqld.sock

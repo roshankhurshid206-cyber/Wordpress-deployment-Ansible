@@ -1,0 +1,39 @@
+---
+- name: Master WordPress Deployment
+  hosts: wordpress
+  become: true
+  tasks:
+    - name: Install LAMP stack
+      apt:
+        name: [apache2, mysql-server, php, php-mysql, libapache2-mod-php, python3-pymysql]
+        update_cache: yes
+        state: present
+
+    - name: Configure MySQL Database
+      mysql_db:
+        name: wordpress
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Configure MySQL User
+      mysql_user:
+        name: wp_user
+        password: "YourSecurePassword123!"
+        priv: 'wordpress.*:ALL'
+        state: present
+        login_unix_socket: /var/run/mysqld/mysqld.sock
+
+    - name: Deploy WordPress Files
+      unarchive:
+        src: https://wordpress.org/latest.tar.gz
+        dest: /var/www/html/
+        remote_src: yes
+        extra_opts: [--strip-components=1]
+
+    - name: Final Permissions
+      file:
+        path: /var/www/html
+        owner: www-data
+        group: www-data
+        recurse: yes
+        state: directory
