@@ -1,3 +1,4 @@
+# Final optimized WordPress deployment playbook
 ---
 - name: Master WordPress Deployment
   hosts: wordpress
