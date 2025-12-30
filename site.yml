@@ -6,7 +6,7 @@
   tasks:
     - name: Install LAMP stack
       apt:
-        name: [apache2, mysql-server, php, php-mysql, libapache2-mod-php, python3-pymysql]
+        name: [apache2, mysql-server, php, php-mysql, libapache2-mod-php, python3-pymysql, wget]
         update_cache: yes
         state: present
 
@@ -24,17 +24,26 @@
         state: present
         login_unix_socket: /var/run/mysqld/mysqld.sock
 
-    - name: Deploy WordPress Files
+    - name: Remove default Ubuntu index page
+      file:
+        path: /var/www/html/index.html
+        state: absent
+
+    - name: Download and Unarchive WordPress
       unarchive:
         src: https://wordpress.org/latest.tar.gz
-        dest: /var/www/html/
+        dest: /var/www/html
         remote_src: yes
         extra_opts: [--strip-components=1]
 
-    - name: Final Permissions
+    - name: Set permissions for Apache
       file:
         path: /var/www/html
         owner: www-data
         group: www-data
         recurse: yes
-        state: directory
+
+    - name: Restart Apache to apply changes
+      service:
+        name: apache2
+        state: restarted
